@@ -1,8 +1,9 @@
 
-import image from "./assets/students_learning.jpg";
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import image from "./assets/students_learning.jpg";
+
 
 // Main container for styling
 const Container = styled.div`
@@ -59,9 +60,17 @@ const Button = styled.button`
 
 const CourseList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
   gap: 30px;
   margin-top: 40px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr); /* 2 cards per row on tablets */
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr; /* 1 card per row on mobile */
+  }
 `;
 
 const CourseItem = styled.div`
