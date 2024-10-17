@@ -1,9 +1,6 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import image from "./assets/students_learning.jpg";
-
 
 // Main container for styling
 const Container = styled.div`
@@ -143,10 +140,55 @@ const IframeContainer = styled.iframe`
   width: 100%;
   height: 400px;
   border-radius: 10px;
+  border: none;
 `;
 
 function App() {
   const [showPopup, setShowPopup] = useState(false);
+  const iframeRef = useRef(null);
+  const popupRef = useRef(null); // Ref to track the popup for outside click detection
+
+  const requestMicrophoneAccess = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('Microphone access granted');
+      // Send a message to iframe to start voice recognition
+      if (iframeRef.current) {
+        const iframeWindow = iframeRef.current.contentWindow;
+        iframeWindow.postMessage("Start voice recognition", '*');
+      }
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
+  };
+
+  const handleOpenPopup = () => {
+    requestMicrophoneAccess();
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
+
+  // Detect clicks outside the popup and close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        handleClosePopup();
+      }
+    };
+
+    if (showPopup) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPopup]);
 
   return (
     <Container>
@@ -154,11 +196,11 @@ function App() {
 
       {/* Section 1 - Introduction */}
       <Section>
-        <Title>Online Coding & AI Classes for Kids and Teens</Title>
+        <Title>Online Coding & AI classes for kids and teens, to become the innovators of tomorrow</Title>
         <Description>
           Become the innovators of tomorrow with engaging live video lessons taught by world-class instructors.
         </Description>
-        <Button onClick={() => setShowPopup(true)}>Talk to AI Assistant</Button>
+        <Button onClick={handleOpenPopup}>Talk to AI Assistant</Button>
       </Section>
 
       {/* Section 2 - Courses */}
@@ -213,12 +255,14 @@ function App() {
       </Section>
 
       {/* AI Assistant Popup */}
-      <Popup show={showPopup}>
+      <Popup show={showPopup} ref={popupRef}>
         <IframeContainer
-          src="https://your-ai-assistant-url.com" // Replace with the URL for your AI iframe
+          src="https://vapi.ai?demo=true&shareKey=fe502c7f-d3a8-46bf-a2d8-aea6eb0d1ea0&assistantId=b5b17e14-1123-478f-a6e1-a1e7c343dcd5" 
           title="AI Assistant"
+          allow="microphone"
+          ref={iframeRef}
         ></IframeContainer>
-        <Button onClick={() => setShowPopup(false)}>Close</Button>
+        <Button onClick={handleClosePopup}>Close</Button>
       </Popup>
     </Container>
   );
