@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import image from "./assets/students_learning.jpg";
+import image from "./assets/codingal_image-1.jpg";
 
 // Main container for styling
 const Container = styled.div`
